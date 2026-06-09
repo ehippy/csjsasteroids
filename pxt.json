@@ -1,6 +1,6 @@
 {
     "name": "csjsAsteroids",
-    "description": "",
+    "description": "Classic Asteroids-style space shooter. Move your ship, shoot enemies, track high scores. Press A to restart after game over.",
     "dependencies": {
         "device": "*",
         "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.1"
