@@ -51,7 +51,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
         highScore = info.score()
         info.saveHighScore()
     }
-    mySprite.hide()
+    mySprite.setFlag(SpriteFlag.Visible, false)
 })
 let baddie: Sprite = null
 let projectile: Sprite = null
@@ -349,7 +349,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (gameState === 1) {
         gameState = 0
         info.setScore(0)
-        mySprite.show()
+        mySprite.setFlag(SpriteFlag.Visible, true)
         mySprite.setPosition(64, 100)
         mySprite.setVelocity(0, 0)
         statusbar.value = 30
