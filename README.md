@@ -27,6 +27,20 @@ This image may take a few minutes to refresh.
 
 ![A rendered view of the blocks](https://github.com/ehippy/csjsasteroids/raw/master/.github/makecode/blocks.png)
 
+## Controls
+
+- **Left/Right**: Move ship
+- **Up/Down**: Move ship
+- **A Button**: Shoot
+
+## Features
+
+- Classic Asteroids-style gameplay with a spaceship defending against waves of enemies
+- Persistent high score tracking across play sessions
+- Real-time score HUD display
+- Particle explosion effects when enemies are destroyed
+- Press **A** after game over to restart instantly
+
 #### Metadata (used for search, rendering)
 
 * for PXT/arcade

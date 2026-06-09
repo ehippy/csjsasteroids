@@ -2,11 +2,26 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
 	
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
-    sprite.startEffect(effects.disintegrate)
-    music.thump.play()
-    info.changeScoreBy(1)
-    sprite.destroy()
-    otherSprite.destroy()
+  sprite.startEffect(effects.disintegrate)
+  music.thump.play()
+  info.changeScoreBy(1)
+  sprite.destroy()
+  otherSprite.startEffect(effects.disintegrate)
+  otherSprite.destroy()
+  for (let i = 0; i < 6; i++) {
+        let particle = sprites.create(img`
+            . . . 3 3 . . . 
+            . 3 a a 3 . . . 
+            3 a a a a 3 . . 
+            3 a a a a 3 . . 
+            . 3 a a 3 . . . 
+            . . . 3 3 . . . 
+            . . . . . . . . 
+            . . . . . . . . `, SpriteKind.Enemy)
+        particle.setPosition(otherSprite.x, otherSprite.y)
+        particle.setVelocity(randint(-80, 80), randint(-80, 80))
+        particle.setStayInScreen(false)
+    }
 })
 function pewPew () {
     if (statusbar.value > 0) {
@@ -25,12 +40,25 @@ function pewPew () {
     }
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
-    game.over(false)
+    gameState = 1
+    game.gameOver(false)
+    scene.cameraShake(8, 1000)
+    music.smallCrash.play()
+    for (let s of sprites.allOfKind(SpriteKind.Enemy)) {
+        s.destroy()
+    }
+    if (info.score() > highScore) {
+        highScore = info.score()
+        info.saveHighScore()
+    }
+    mySprite.setFlag(SpriteFlag.Invisible, true)
 })
 let baddie: Sprite = null
 let projectile: Sprite = null
 let statusbar: StatusBarSprite = null
 let mySprite: Sprite = null
+let gameState: number = 0
+let highScore: number = 0
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -314,6 +342,19 @@ game.onUpdateInterval(200, function () {
             info.changeScoreBy(-10)
             scene.cameraShake(4, 500)
             music.smallCrash.play()
+        }
+    }
+})
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (gameState === 1) {
+        gameState = 0
+        info.setScore(0)
+        mySprite.setFlag(SpriteFlag.Invisible, false)
+        mySprite.setPosition(64, 100)
+        mySprite.setVelocity(0, 0)
+        statusbar.value = 30
+        for (let s of sprites.allOfKind(SpriteKind.Enemy)) {
+            s.destroy()
         }
     }
 })
