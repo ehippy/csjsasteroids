@@ -2,16 +2,13 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
 	
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
-    sprite.startEffect(effects.disintegrate)
-    music.thump.play()
-    info.changeScoreBy(1)
-    if (scoreLabel) {
-        scoreLabel.setText("Score: " + info.score())
-    }
-    sprite.destroy()
-    otherSprite.startEffect(effects.disintegrate)
-    otherSprite.destroy()
-    for (let i = 0; i < 6; i++) {
+  sprite.startEffect(effects.disintegrate)
+  music.thump.play()
+  info.changeScoreBy(1)
+  sprite.destroy()
+  otherSprite.startEffect(effects.disintegrate)
+  otherSprite.destroy()
+  for (let i = 0; i < 6; i++) {
         let particle = sprites.create(img`
             . . . 3 3 . . . 
             . 3 a a 3 . . . 
@@ -52,17 +49,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     }
     if (info.score() > highScore) {
         highScore = info.score()
-        info.setHighScore(highScore)
+        info.saveHighScore()
     }
-    mySprite.setVisible(false)
-    if (scoreLabel) {
-        scoreLabel.setVisible(false)
-    }
-    scoreLabel = info.setText(highScore.toString(), 32)
-    scoreLabel.top = 50
-    scoreLabel.left = 50
-    scoreLabel.setColor(14)
-    scoreLabel.setText("GAME OVER\nScore: " + info.score())
+    mySprite.hide()
 })
 let baddie: Sprite = null
 let projectile: Sprite = null
@@ -70,7 +59,6 @@ let statusbar: StatusBarSprite = null
 let mySprite: Sprite = null
 let gameState: number = 0
 let highScore: number = 0
-let scoreLabel: LabelSprite = null
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -219,10 +207,6 @@ statusbar.attachToSprite(mySprite)
 statusbar.positionDirection(CollisionDirection.Bottom)
 statusbar.setColor(7, 2)
 statusbar.max = 30
-scoreLabel = info.setText("Score: 0", 32)
-scoreLabel.top = 2
-scoreLabel.left = 2
-scoreLabel.setColor(14)
 game.onUpdateInterval(2000, function () {
     for (let index = 0; index <= 5; index++) {
         if (randint(0, 10) > 2) {
@@ -356,9 +340,6 @@ game.onUpdateInterval(200, function () {
         if (value.y > 100) {
             value.destroy()
             info.changeScoreBy(-10)
-            if (scoreLabel) {
-                scoreLabel.setText("Score: " + info.score())
-            }
             scene.cameraShake(4, 500)
             music.smallCrash.play()
         }
@@ -368,12 +349,8 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (gameState === 1) {
         gameState = 0
         info.setScore(0)
-        if (scoreLabel) {
-            scoreLabel.setText("Score: 0")
-            scoreLabel.setVisible(true)
-        }
+        mySprite.show()
         mySprite.setPosition(64, 100)
-        mySprite.setVisible(true)
         mySprite.setVelocity(0, 0)
         statusbar.value = 30
         for (let s of sprites.allOfKind(SpriteKind.Enemy)) {
