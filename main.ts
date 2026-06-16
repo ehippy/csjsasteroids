@@ -27,7 +27,7 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, oth
     }
 })
 function pewPew () {
-    if (statusbar.value > 0) {
+    if (statusbar.value > 0 && game.runtime() - lastShotTime > 200) {
         projectile = sprites.createProjectileFromSprite(img`
             . . . . 1 . . . 
             . . . 3 a . . . 
@@ -40,6 +40,7 @@ function pewPew () {
             `, mySprite, 0, -150)
         music.pewPew.play()
         statusbar.value += -1
+        lastShotTime = game.runtime()
     }
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
@@ -71,6 +72,7 @@ let mySprite: Sprite = null
 let gameState: number = 0
 let highScore: number = 0
 let scoreLabel: LabelSprite = null
+let lastShotTime: number = 0
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -213,7 +215,8 @@ mySprite = sprites.create(img`
     `, SpriteKind.Player)
 controller.moveSprite(mySprite, 200, 200)
 effects.starField.startScreenEffect()
-mySprite.setStayInScreen(true)
+mySprite.setStayInScreen(false)
+mySprite.setFlag(SpriteFlag.WrapAroundScreen, true)
 statusbar = statusbars.create(20, 4, StatusBarKind.Energy)
 statusbar.attachToSprite(mySprite)
 statusbar.positionDirection(CollisionDirection.Bottom)

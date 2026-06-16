@@ -36,6 +36,8 @@ This image may take a few minutes to refresh.
 ## Features
 
 - Classic Asteroids-style gameplay with a spaceship defending against waves of enemies
+- **Screen wrapping** — the ship wraps around screen edges for classic Asteroids movement
+- **Shooting cooldown** — balanced fire rate prevents spam, one shot every ~200ms
 - Persistent high score tracking across play sessions
 - Real-time score HUD display
 - Particle explosion effects when enemies are destroyed
