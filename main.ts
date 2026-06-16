@@ -5,11 +5,29 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, oth
     sprite.startEffect(effects.disintegrate)
     music.thump.play()
     info.changeScoreBy(1)
+    if (scoreLabel) {
+        scoreLabel.setText("Score: " + info.score())
+    }
     sprite.destroy()
+    otherSprite.startEffect(effects.disintegrate)
     otherSprite.destroy()
+    for (let i = 0; i < 6; i++) {
+        let particle = sprites.create(img`
+            . . . 3 3 . . . 
+            . 3 a a 3 . . . 
+            3 a a a a 3 . . 
+            3 a a a a 3 . . 
+            . 3 a a 3 . . . 
+            . . . 3 3 . . . 
+            . . . . . . . . 
+            . . . . . . . . `, SpriteKind.Enemy)
+        particle.setPosition(otherSprite.x, otherSprite.y)
+        particle.setVelocity(randint(-80, 80), randint(-80, 80))
+        particle.setStayInScreen(false)
+    }
 })
 function pewPew () {
-    if (statusbar.value > 0) {
+    if (statusbar.value > 0 && game.runtime() - lastShotTime > 200) {
         projectile = sprites.createProjectileFromSprite(img`
             . . . . 1 . . . 
             . . . 3 a . . . 
@@ -22,15 +40,39 @@ function pewPew () {
             `, mySprite, 0, -150)
         music.pewPew.play()
         statusbar.value += -1
+        lastShotTime = game.runtime()
     }
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
-    game.over(false)
+    gameState = 1
+    game.gameOver(false)
+    scene.cameraShake(8, 1000)
+    music.smallCrash.play()
+    for (let s of sprites.allOfKind(SpriteKind.Enemy)) {
+        s.destroy()
+    }
+    if (info.score() > highScore) {
+        highScore = info.score()
+        info.setHighScore(highScore)
+    }
+    mySprite.setVisible(false)
+    if (scoreLabel) {
+        scoreLabel.setVisible(false)
+    }
+    scoreLabel = info.setText(highScore.toString(), 32)
+    scoreLabel.top = 50
+    scoreLabel.left = 50
+    scoreLabel.setColor(14)
+    scoreLabel.setText("GAME OVER\nScore: " + info.score())
 })
 let baddie: Sprite = null
 let projectile: Sprite = null
 let statusbar: StatusBarSprite = null
 let mySprite: Sprite = null
+let gameState: number = 0
+let highScore: number = 0
+let scoreLabel: LabelSprite = null
+let lastShotTime: number = 0
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -173,12 +215,17 @@ mySprite = sprites.create(img`
     `, SpriteKind.Player)
 controller.moveSprite(mySprite, 200, 200)
 effects.starField.startScreenEffect()
-mySprite.setStayInScreen(true)
+mySprite.setStayInScreen(false)
+mySprite.setFlag(SpriteFlag.WrapAroundScreen, true)
 statusbar = statusbars.create(20, 4, StatusBarKind.Energy)
 statusbar.attachToSprite(mySprite)
 statusbar.positionDirection(CollisionDirection.Bottom)
 statusbar.setColor(7, 2)
 statusbar.max = 30
+scoreLabel = info.setText("Score: 0", 32)
+scoreLabel.top = 2
+scoreLabel.left = 2
+scoreLabel.setColor(14)
 game.onUpdateInterval(2000, function () {
     for (let index = 0; index <= 5; index++) {
         if (randint(0, 10) > 2) {
@@ -312,8 +359,28 @@ game.onUpdateInterval(200, function () {
         if (value.y > 100) {
             value.destroy()
             info.changeScoreBy(-10)
+            if (scoreLabel) {
+                scoreLabel.setText("Score: " + info.score())
+            }
             scene.cameraShake(4, 500)
             music.smallCrash.play()
+        }
+    }
+})
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (gameState === 1) {
+        gameState = 0
+        info.setScore(0)
+        if (scoreLabel) {
+            scoreLabel.setText("Score: 0")
+            scoreLabel.setVisible(true)
+        }
+        mySprite.setPosition(64, 100)
+        mySprite.setVisible(true)
+        mySprite.setVelocity(0, 0)
+        statusbar.value = 30
+        for (let s of sprites.allOfKind(SpriteKind.Enemy)) {
+            s.destroy()
         }
     }
 })
